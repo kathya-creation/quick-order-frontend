@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quick Order Tool | WholeSMM</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      text-align: center;
+      padding: 30px;
+    }
+    h1 {
+      color: #333;
+    }
+    input, button {
+      margin: 10px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    input {
+      width: 80%;
+      max-width: 400px;
+    }
+    .btn-group {
+      margin-top: 20px;
+    }
+    button {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      cursor: pointer;
+      min-width: 100px;
+      margin: 5px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #message {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    footer {
+      margin-top: 40px;
+      color: #666;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Quick Order Tool</h1>
+  <input type="text" id="link" placeholder="Paste Instagram Post Link" />
+  <br />
+  <input type="password" id="password" placeholder="Enter Password" />
+  <div class="btn-group">
+    <button onclick="placeOrder(1000)">1k</button>
+    <button onclick="placeOrder(2000)">2k</button>
+    <button onclick="placeOrder(3000)">3k</button>
+    <button onclick="placeOrder(5000)">5k</button>
+    <button onclick="placeOrder(10000)">10k</button>
+  </div>
+  <div id="message"></div>
+
+  <footer>
+    Made by Hemant 💻 | Powered by WholeSMM
+  </footer>
+
+  <script>
+    async function placeOrder(quantity) {
+      const link = document.getElementById("link").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const msg = document.getElementById("message");
+      msg.innerText = "Processing...";
+
+      try {
+        const res = await fetch("https://quick-order-wholesmm.onrender.com/order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ link, password, quantity })
+        });
+        const data = await res.json();
+        msg.innerText = data.message;
+      } catch (err) {
+        msg.innerText = "Something went wrong!";
+      }
+    }
+  </script>
+</body>
+</html>
