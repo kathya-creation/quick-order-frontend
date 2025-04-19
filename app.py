@@ -11,72 +11,66 @@ HTML_PAGE = """
     <style>
         body {
             font-family: Arial, sans-serif;
-            padding: 20px;
             margin: 0;
-            background-color: #f7f7f7;
+            padding: 0;
+            background-color: #f1f1f1;
         }
         h2 {
             text-align: center;
             color: #333;
+            margin-top: 20px;
         }
         .container {
-            max-width: 500px;
-            margin: auto;
             background-color: #fff;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin: 20px;
         }
-        input[type="text"], button {
+        input[type="text"] {
             width: 100%;
             padding: 15px;
             margin: 10px 0;
+            border-radius: 10px;
             border: 1px solid #ccc;
-            border-radius: 5px;
+            font-size: 16px;
         }
         .radio-group {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         .radio-group label {
             flex: 1;
             text-align: center;
         }
-        .button-row {
-            display: flex;
-            gap: 10px;
-            justify-content: space-between;
-            flex-wrap: wrap;
-        }
-        .button-row button {
-            flex: 1;
-            padding: 10px;
-            margin: 5px;
+        button {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
             font-size: 16px;
             background-color: #007bff;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
             cursor: pointer;
         }
-        .button-row button:hover {
+        button:hover {
             background-color: #0056b3;
         }
         .full-button {
             background-color: #28a745;
-            margin-top: 10px;
         }
         .full-button:hover {
             background-color: #218838;
         }
-        @media (max-width: 600px) {
-            .radio-group {
-                flex-direction: column;
-                align-items: stretch;
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
             }
-            .button-row {
-                flex-direction: column;
+            button {
+                font-size: 18px;
+                padding: 18px;
             }
         }
     </style>
@@ -90,14 +84,10 @@ HTML_PAGE = """
                 <label><input type="radio" name="service" value="2771" required> Likes</label>
                 <label><input type="radio" name="service" value="4505"> Views</label>
             </div>
-            <div class="button-row">
-                <button type="submit" name="quantity" value="1000">1k</button>
-                <button type="submit" name="quantity" value="2000">2k</button>
-            </div>
-            <div class="button-row">
-                <button type="submit" name="quantity" value="3000">3k</button>
-                <button type="submit" name="quantity" value="5000">5k</button>
-            </div>
+            <button type="submit" name="quantity" value="1000">1k</button>
+            <button type="submit" name="quantity" value="2000">2k</button>
+            <button type="submit" name="quantity" value="3000">3k</button>
+            <button type="submit" name="quantity" value="5000">5k</button>
             <button class="full-button" type="submit" name="quantity" value="10000">10k</button>
         </form>
         {% if response %}
