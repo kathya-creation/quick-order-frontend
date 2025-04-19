@@ -69,6 +69,21 @@ HTML_PAGE = """
         .full-button:hover {
             background-color: #218838;
         }
+        .balance-info {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+        .add-funds {
+            font-size: 16px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .add-funds a {
+            color: #007bff;
+            text-decoration: none;
+        }
         @media (max-width: 480px) {
             h2 {
                 font-size: 22px;
@@ -86,6 +101,9 @@ HTML_PAGE = """
 <body>
     <div class="container">
         <h2>Auto Order Tool</h2>
+        <div class="balance-info">
+            <p><strong>Live Balance:</strong> ₹{{ balance }}</p>
+        </div>
         <form method="POST">
             <input type="text" name="link" placeholder="Enter post/reel link" required />
             <div class="radio-group">
@@ -98,6 +116,9 @@ HTML_PAGE = """
             <button type="submit" name="quantity" value="5000">5k</button>
             <button class="full-button" type="submit" name="quantity" value="10000">10k</button>
         </form>
+        <div class="add-funds">
+            <p>If your balance is low, <a href="YOUR_PAYMENT_URL" target="_blank">add funds</a></p>
+        </div>
         {% if response %}
             <p><strong>Response:</strong> {{ response }}</p>
         {% endif %}
@@ -109,9 +130,14 @@ HTML_PAGE = """
 API_URL = "https://growwsmmpanel.com/api/v2"
 API_KEY = "b3a1c4c4725e1114a8831e1835240ead"
 
+# API endpoint to get the current balance (Assuming API provides it)
+BALANCE_API_URL = "https://growwsmmpanel.com/api/v2/get_balance"
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     response = None
+    balance = get_balance()  # Fetch live balance
+
     if request.method == "POST":
         link = request.form.get("link")
         service = request.form.get("service")
@@ -131,7 +157,19 @@ def index():
         except Exception as e:
             response = f"Error: {str(e)}"
 
-    return render_template_string(HTML_PAGE, response=response)
+    return render_template_string(HTML_PAGE, response=response, balance=balance)
+
+def get_balance():
+    try:
+        headers = {"Authorization": f"Bearer {API_KEY}"}
+        response = requests.get(BALANCE_API_URL, headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            return data.get("balance", "0")
+        else:
+            return "Error fetching balance"
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 if __name__ == "__main__":
     app.run(debug=True, port=7860)
