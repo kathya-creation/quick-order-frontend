@@ -5,8 +5,10 @@ app = Flask(__name__)
 
 HTML_PAGE = """
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- For mobile optimization -->
     <title>Auto Order Tool</title>
     <style>
         body {
