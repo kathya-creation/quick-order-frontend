@@ -1,167 +1,142 @@
-from flask import Flask, request, render_template_string
-import requests
-
-app = Flask(__name__)
-
-HTML_PAGE = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auto Order Tool</title>
+    <title>Order Panel</title>
     <style>
+        /* Add your existing CSS styles here */
         body {
             font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
             margin: 0;
             padding: 0;
-            background-color: #f1f1f1;
         }
-        h2 {
-            text-align: center;
-            color: #333;
-            margin-top: 20px;
-            font-size: 24px;
-        }
+
         .container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            margin: 10px;
-        }
-        input[type="text"] {
             width: 100%;
-            padding: 15px;
-            margin: 10px 0;
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            background: white;
             border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
             border: 1px solid #ccc;
             font-size: 16px;
         }
-        .radio-group {
-            display: block;
-            margin-bottom: 20px;
-            padding: 0;
+
+        .quantity {
+            width: 70%;
+            display: inline-block;
         }
-        .radio-group label {
-            display: block;
-            text-align: center;
-            margin-bottom: 10px;
+
+        .price-display {
+            margin: 20px 0;
             font-size: 18px;
+            font-weight: bold;
         }
-        button {
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            font-size: 18px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .full-button {
-            background-color: #28a745;
-        }
-        .full-button:hover {
-            background-color: #218838;
-        }
-        .balance {
-            text-align: center;
-            font-size: 18px;
-            margin-bottom: 20px;
-            color: #333;
-        }
-        @media (max-width: 480px) {
-            h2 {
-                font-size: 22px;
-            }
-            .container {
-                margin: 5px;
-            }
-            button {
-                font-size: 18px;
-                padding: 18px;
-            }
+
+        button:disabled {
+            background-color: #ccc;
         }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <h2>Auto Order Tool</h2>
-        <div class="balance">
-            <p><strong>Live Balance: ₹{{ balance }}</strong></p>
+        <!-- Link Input -->
+        <label for="post-link">Enter Post Link:</label>
+        <input type="text" id="post-link" placeholder="Enter Post/Reel Link">
+
+        <!-- Select Service -->
+        <label for="service-type">Select Service:</label>
+        <select id="service-type">
+            <option value="likes">Likes</option>
+            <option value="views">Views</option>
+        </select>
+
+        <!-- Predefined Quantity Buttons -->
+        <div>
+            <button onclick="setQuantity(1000)">1k</button>
+            <button onclick="setQuantity(2000)">2k</button>
+            <button onclick="setQuantity(3000)">3k</button>
+            <button onclick="setQuantity(5000)">5k</button>
+            <button onclick="setQuantity(10000)">10k</button>
         </div>
-        <form method="POST">
-            <input type="text" name="link" placeholder="Enter post/reel link" required />
-            <div class="radio-group">
-                <label><input type="radio" name="service" value="2771" required> Likes</label>
-                <label><input type="radio" name="service" value="4505"> Views</label>
-            </div>
-            <button type="submit" name="quantity" value="1000">1k</button>
-            <button type="submit" name="quantity" value="2000">2k</button>
-            <button type="submit" name="quantity" value="3000">3k</button>
-            <button type="submit" name="quantity" value="5000">5k</button>
-            <button class="full-button" type="submit" name="quantity" value="10000">10k</button>
-        </form>
-        {% if response %}
-            <p><strong>Response:</strong> {{ response }}</p>
-        {% endif %}
+
+        <!-- Manual Quantity Input -->
+        <div>
+            <input type="number" id="manual-quantity" class="quantity" placeholder="Enter Custom Quantity" oninput="calculatePrice()">
+        </div>
+
+        <!-- Price Display -->
+        <div class="price-display" id="price-display">Price: ₹0</div>
+
+        <!-- Create Order Button -->
+        <button id="create-order" disabled onclick="createOrder()">Create Order</button>
     </div>
-</body>
-</html>
-"""
 
-API_URL = "https://growwsmmpanel.com/api/v2"
-API_KEY = "b3a1c4c4725e1114a8831e1835240ead"
+    <script>
+        // Prices per 1k for Likes and Views
+        const prices = {
+            likes: 15,  // Price for 1k Likes
+            views: 20   // Price for 1k Views
+        };
 
-# Function to get live balance from the provider's panel
-def get_balance():
-    balance_url = f"{API_URL}/api/v2"  # The base URL of your provider
-    params = {
-        "key": API_KEY,  # API Key
-        "action": "balance"  # Action to get balance
-    }
-    
-    try:
-        response = requests.get(balance_url, params=params)
-        balance_data = response.json()
-        
-        # Check if balance is present in the response
-        if "balance" in balance_data:
-            return f"₹{balance_data['balance']}"  # Convert USD to INR if needed
-        else:
-            return "Balance not available"
-    except Exception as e:
-        return f"Error fetching balance: {str(e)}"
+        let currentQuantity = 0;
+        let currentService = "likes"; // Default to Likes
 
-@app.route("/", methods=["GET", "POST"])
-def index():
-    balance = get_balance()  # Get live balance
-    response = None
-    if request.method == "POST":
-        link = request.form.get("link")
-        service = request.form.get("service")
-        quantity = request.form.get("quantity")
-
-        data = {
-            "key": API_KEY,
-            "action": "add",
-            "service": service,
-            "link": link,
-            "quantity": quantity
+        // Set quantity from predefined buttons
+        function setQuantity(quantity) {
+            currentQuantity = quantity;
+            document.getElementById("manual-quantity").value = quantity;
+            calculatePrice();
         }
 
-        try:
-            r = requests.post(API_URL, data=data)
-            response = r.json()
-        except Exception as e:
-            response = f"Error: {str(e)}"
+        // Calculate price based on quantity
+        function calculatePrice() {
+            const quantity = document.getElementById("manual-quantity").value;
+            if (quantity > 0) {
+                currentQuantity = quantity;
+                document.getElementById("create-order").disabled = false;
+                const price = (prices[currentService] * currentQuantity) / 1000;
+                document.getElementById("price-display").innerText = `Price: ₹${price}`;
+            } else {
+                document.getElementById("create-order").disabled = true;
+                document.getElementById("price-display").innerText = "Price: ₹0";
+            }
+        }
 
-    return render_template_string(HTML_PAGE, response=response, balance=balance)
+        // Handle the service type change (Likes or Views)
+        document.getElementById("service-type").addEventListener("change", function() {
+            currentService = this.value;
+            calculatePrice();
+        });
 
-if __name__ == "__main__":
-    app.run(debug=True, port=7860)
+        // Create Order function (you can link this to your backend)
+        function createOrder() {
+            const postLink = document.getElementById("post-link").value;
+            if (!postLink || currentQuantity <= 0) {
+                alert("Please enter a valid link and quantity.");
+                return;
+            }
+            
+            // Here you can call your API to create an order
+            alert(`Order created for ${currentQuantity} ${currentService} on post ${postLink}.`);
+
+            // Optionally, you can reset the form after successful order
+            document.getElementById("post-link").value = "";
+            document.getElementById("manual-quantity").value = "";
+            document.getElementById("create-order").disabled = true;
+            document.getElementById("price-display").innerText = "Price: ₹0";
+        }
+    </script>
+</body>
+</html>
