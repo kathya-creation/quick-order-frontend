@@ -8,7 +8,7 @@ HTML_PAGE = """
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- For mobile optimization -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Auto Order Tool</title>
     <style>
         body {
@@ -69,20 +69,11 @@ HTML_PAGE = """
         .full-button:hover {
             background-color: #218838;
         }
-        .balance-info {
+        .balance {
+            text-align: center;
             font-size: 18px;
             margin-bottom: 20px;
             color: #333;
-            text-align: center;
-        }
-        .add-funds {
-            font-size: 16px;
-            text-align: center;
-            margin-top: 20px;
-        }
-        .add-funds a {
-            color: #007bff;
-            text-decoration: none;
         }
         @media (max-width: 480px) {
             h2 {
@@ -101,8 +92,8 @@ HTML_PAGE = """
 <body>
     <div class="container">
         <h2>Auto Order Tool</h2>
-        <div class="balance-info">
-            <p><strong>Live Balance:</strong> ₹{{ balance }}</p>
+        <div class="balance">
+            <p><strong>Live Balance: ₹{{ balance }}</strong></p>
         </div>
         <form method="POST">
             <input type="text" name="link" placeholder="Enter post/reel link" required />
@@ -116,9 +107,6 @@ HTML_PAGE = """
             <button type="submit" name="quantity" value="5000">5k</button>
             <button class="full-button" type="submit" name="quantity" value="10000">10k</button>
         </form>
-        <div class="add-funds">
-            <p>If your balance is low, <a href="YOUR_PAYMENT_URL" target="_blank">add funds</a></p>
-        </div>
         {% if response %}
             <p><strong>Response:</strong> {{ response }}</p>
         {% endif %}
@@ -130,14 +118,26 @@ HTML_PAGE = """
 API_URL = "https://growwsmmpanel.com/api/v2"
 API_KEY = "b3a1c4c4725e1114a8831e1835240ead"
 
-# API endpoint to get the current balance (Assuming API provides it)
-BALANCE_API_URL = "https://growwsmmpanel.com/api/v2/get_balance"
+# Function to get live balance from the provider's panel
+def get_balance():
+    balance_url = f"{API_URL}/get_balance"  # Assuming API has a get_balance endpoint
+    params = {
+        "key": API_KEY
+    }
+    try:
+        response = requests.get(balance_url, params=params)
+        balance_data = response.json()
+        if "balance" in balance_data:
+            return balance_data["balance"]
+        else:
+            return "0"
+    except Exception as e:
+        return "Error fetching balance"
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    balance = get_balance()  # Get live balance
     response = None
-    balance = get_balance()  # Fetch live balance
-
     if request.method == "POST":
         link = request.form.get("link")
         service = request.form.get("service")
@@ -158,18 +158,6 @@ def index():
             response = f"Error: {str(e)}"
 
     return render_template_string(HTML_PAGE, response=response, balance=balance)
-
-def get_balance():
-    try:
-        headers = {"Authorization": f"Bearer {API_KEY}"}
-        response = requests.get(BALANCE_API_URL, headers=headers)
-        if response.status_code == 200:
-            data = response.json()
-            return data.get("balance", "0")
-        else:
-            return "Error fetching balance"
-    except Exception as e:
-        return f"Error: {str(e)}"
 
 if __name__ == "__main__":
     app.run(debug=True, port=7860)
