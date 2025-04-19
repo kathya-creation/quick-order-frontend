@@ -19,13 +19,14 @@ HTML_PAGE = """
             text-align: center;
             color: #333;
             margin-top: 20px;
+            font-size: 24px;
         }
         .container {
             background-color: #fff;
             padding: 20px;
             border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            margin: 20px;
+            margin: 10px;
         }
         input[type="text"] {
             width: 100%;
@@ -36,19 +37,21 @@ HTML_PAGE = """
             font-size: 16px;
         }
         .radio-group {
-            display: flex;
-            justify-content: space-between;
+            display: block;
             margin-bottom: 20px;
+            padding: 0;
         }
         .radio-group label {
-            flex: 1;
+            display: block;
             text-align: center;
+            margin-bottom: 10px;
+            font-size: 18px;
         }
         button {
             width: 100%;
             padding: 15px;
             margin: 10px 0;
-            font-size: 16px;
+            font-size: 18px;
             background-color: #007bff;
             color: white;
             border: none;
@@ -65,8 +68,11 @@ HTML_PAGE = """
             background-color: #218838;
         }
         @media (max-width: 480px) {
+            h2 {
+                font-size: 22px;
+            }
             .container {
-                margin: 10px;
+                margin: 5px;
             }
             button {
                 font-size: 18px;
