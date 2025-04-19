@@ -120,19 +120,23 @@ API_KEY = "b3a1c4c4725e1114a8831e1835240ead"
 
 # Function to get live balance from the provider's panel
 def get_balance():
-    balance_url = f"{API_URL}/get_balance"  # Assuming API has a get_balance endpoint
+    balance_url = f"{API_URL}/api/v2"  # The base URL of your provider
     params = {
-        "key": API_KEY
+        "key": API_KEY,  # API Key
+        "action": "balance"  # Action to get balance
     }
+    
     try:
         response = requests.get(balance_url, params=params)
         balance_data = response.json()
+        
+        # Check if balance is present in the response
         if "balance" in balance_data:
-            return balance_data["balance"]
+            return f"₹{balance_data['balance']}"  # Convert USD to INR if needed
         else:
-            return "0"
+            return "Balance not available"
     except Exception as e:
-        return "Error fetching balance"
+        return f"Error fetching balance: {str(e)}"
 
 @app.route("/", methods=["GET", "POST"])
 def index():
