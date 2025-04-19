@@ -3,139 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Panel</title>
+    <title>Create Order</title>
     <style>
-        /* Add your existing CSS styles here */
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
             margin: 0;
             padding: 0;
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
-
         .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
-            margin: auto;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-
-        input, select, button {
+        .title {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            font-size: 14px;
+            color: #333;
+        }
+        .input-group input {
             width: 100%;
             padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
             font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
-
-        .quantity {
-            width: 70%;
-            display: inline-block;
+        .input-group input:focus {
+            outline: none;
+            border-color: #007bff;
         }
-
-        .price-display {
-            margin: 20px 0;
-            font-size: 18px;
-            font-weight: bold;
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
         }
-
-        button:disabled {
+        .button-group button {
+            width: 48%;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .button-group button:disabled {
             background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .order-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .quantity-btn {
+            background-color: #f1f1f1;
+            color: #007bff;
         }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <!-- Link Input -->
-        <label for="post-link">Enter Post Link:</label>
-        <input type="text" id="post-link" placeholder="Enter Post/Reel Link">
-
-        <!-- Select Service -->
-        <label for="service-type">Select Service:</label>
-        <select id="service-type">
-            <option value="likes">Likes</option>
-            <option value="views">Views</option>
-        </select>
-
-        <!-- Predefined Quantity Buttons -->
-        <div>
-            <button onclick="setQuantity(1000)">1k</button>
-            <button onclick="setQuantity(2000)">2k</button>
-            <button onclick="setQuantity(3000)">3k</button>
-            <button onclick="setQuantity(5000)">5k</button>
-            <button onclick="setQuantity(10000)">10k</button>
+        <div class="title">
+            <h2>Create Order</h2>
         </div>
-
-        <!-- Manual Quantity Input -->
-        <div>
-            <input type="number" id="manual-quantity" class="quantity" placeholder="Enter Custom Quantity" oninput="calculatePrice()">
+        <div class="input-group">
+            <label for="postLink">Enter Post/Reel Link:</label>
+            <input type="text" id="postLink" placeholder="Enter your post link here">
         </div>
-
-        <!-- Price Display -->
-        <div class="price-display" id="price-display">Price: ₹0</div>
-
-        <!-- Create Order Button -->
-        <button id="create-order" disabled onclick="createOrder()">Create Order</button>
+        <div class="input-group">
+            <label for="quantity">Enter Quantity:</label>
+            <input type="number" id="quantity" min="1" placeholder="Enter quantity" oninput="checkQuantity()">
+        </div>
+        <div class="button-group">
+            <button class="quantity-btn" id="1k" onclick="selectQuantity(1000)">1k</button>
+            <button class="quantity-btn" id="2k" onclick="selectQuantity(2000)">2k</button>
+            <button class="quantity-btn" id="3k" onclick="selectQuantity(3000)">3k</button>
+            <button class="quantity-btn" id="5k" onclick="selectQuantity(5000)">5k</button>
+            <button class="quantity-btn" id="10k" onclick="selectQuantity(10000)">10k</button>
+        </div>
+        <div class="button-group">
+            <button id="createOrderBtn" class="order-btn" disabled onclick="createOrder()">Create Order</button>
+        </div>
     </div>
 
     <script>
-        // Prices per 1k for Likes and Views
-        const prices = {
-            likes: 15,  // Price for 1k Likes
-            views: 20   // Price for 1k Views
-        };
-
-        let currentQuantity = 0;
-        let currentService = "likes"; // Default to Likes
-
-        // Set quantity from predefined buttons
-        function setQuantity(quantity) {
-            currentQuantity = quantity;
-            document.getElementById("manual-quantity").value = quantity;
-            calculatePrice();
+        // Function to select the quantity from predefined buttons
+        function selectQuantity(quantity) {
+            document.getElementById('quantity').value = quantity;
+            checkQuantity(); // Check if the quantity field is valid
         }
 
-        // Calculate price based on quantity
-        function calculatePrice() {
-            const quantity = document.getElementById("manual-quantity").value;
-            if (quantity > 0) {
-                currentQuantity = quantity;
-                document.getElementById("create-order").disabled = false;
-                const price = (prices[currentService] * currentQuantity) / 1000;
-                document.getElementById("price-display").innerText = `Price: ₹${price}`;
+        // Function to check if quantity is entered
+        function checkQuantity() {
+            const quantity = document.getElementById('quantity').value;
+            const createOrderBtn = document.getElementById('createOrderBtn');
+            // Enable or disable the Create Order button based on quantity
+            if (quantity && quantity > 0) {
+                createOrderBtn.disabled = false;
             } else {
-                document.getElementById("create-order").disabled = true;
-                document.getElementById("price-display").innerText = "Price: ₹0";
+                createOrderBtn.disabled = true;
             }
         }
 
-        // Handle the service type change (Likes or Views)
-        document.getElementById("service-type").addEventListener("change", function() {
-            currentService = this.value;
-            calculatePrice();
-        });
-
-        // Create Order function (you can link this to your backend)
+        // Function to create the order
         function createOrder() {
-            const postLink = document.getElementById("post-link").value;
-            if (!postLink || currentQuantity <= 0) {
-                alert("Please enter a valid link and quantity.");
+            const postLink = document.getElementById('postLink').value;
+            const quantity = document.getElementById('quantity').value;
+
+            // Check if post link and quantity are provided
+            if (!postLink || !quantity) {
+                alert("Please enter both post link and quantity.");
                 return;
             }
-            
-            // Here you can call your API to create an order
-            alert(`Order created for ${currentQuantity} ${currentService} on post ${postLink}.`);
 
-            // Optionally, you can reset the form after successful order
-            document.getElementById("post-link").value = "";
-            document.getElementById("manual-quantity").value = "";
-            document.getElementById("create-order").disabled = true;
-            document.getElementById("price-display").innerText = "Price: ₹0";
+            // Call API or handle the order creation logic here
+            console.log(`Creating order for post: ${postLink}, Quantity: ${quantity}`);
+
+            // You can add an API call here to create the order
+            // Example: 
+            // fetch('your-api-endpoint', { method: 'POST', body: JSON.stringify({ link: postLink, quantity: quantity }) })
         }
     </script>
 </body>
