@@ -59,13 +59,20 @@ def index():
                 "quantity": quantity
             }
 
+            # Debugging: Check the order_params being sent
+            print("Order parameters:", order_params)
+            
             order_response = requests.post(order_url, data=order_params)
             order_data = order_response.json()
-            
+
+            # Debugging: Check the response from the API
+            print("API Response:", order_data)
+
             if order_data.get("status") == "success":
                 return render_template_string(html_template, balance=balance, success="Order created successfully!")
             else:
-                return render_template_string(html_template, balance=balance, error="Failed to create order.")
+                error_message = order_data.get("message", "Failed to create order.")
+                return render_template_string(html_template, balance=balance, error=f"Error: {error_message}")
         else:
             return render_template_string(html_template, balance=balance, error="Please enter a valid quantity.")
 
