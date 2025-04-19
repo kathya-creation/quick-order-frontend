@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Order Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fc;
+            padding: 40px 20px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 26px;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+        }
+        input[type="text"]:focus {
+            border-color: #007bff;
+        }
+        .radio-group {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .radio-group label {
+            font-size: 16px;
+            color: #333;
+        }
+        .button-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            justify-content: space-between;
+        }
+        .button-row button, .full-button {
+            padding: 12px 0;
+            border: none;
+            border-radius: 8px;
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            width: 48%;
+        }
+        .full-button {
+            width: 100%;
+        }
+        .button-row button:hover, .full-button:hover {
+            background-color: #0056b3;
+        }
+        .response {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 18px;
+            color: green;
+        }
+        .response.error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Auto Order Tool</h2>
+    <form method="POST">
+        <input type="text" name="link" placeholder="Enter post/reel link" required />
+        
+        <div class="radio-group">
+            <label><input type="radio" name="service" value="2771" required> Likes</label>
+            <label><input type="radio" name="service" value="4505"> Views</label>
+        </div>
+
+        <div class="button-row">
+            <button type="submit" name="quantity" value="1000">1k</button>
+            <button type="submit" name="quantity" value="2000">2k</button>
+        </div>
+        <div class="button-row">
+            <button type="submit" name="quantity" value="3000">3k</button>
+            <button type="submit" name="quantity" value="5000">5k</button>
+        </div>
+        <button class="full-button" type="submit" name="quantity" value="10000">10k</button>
+    </form>
+
+    {% if response %}
+        <div class="response {% if response.get('status') == 'error' %}error{% endif %}">
+            <strong>{{ response.message }}</strong>
+        </div>
+    {% endif %}
+</div>
+
+</body>
+</html>
